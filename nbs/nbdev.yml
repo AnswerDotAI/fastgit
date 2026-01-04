@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "fastgit"
+  site-url: "https://AnswerDotAI.github.io/fastgit"
+  description: "Use git from python, fast"
+  repo-branch: main
+  repo-url: "https://github.com/AnswerDotAI/fastgit"
