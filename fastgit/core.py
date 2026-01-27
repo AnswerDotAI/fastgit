@@ -31,10 +31,12 @@ class Git:
 
     def __call__(self, cmd, *args, split=None, mute_errors=False, **kwargs):
         args = listify(args)
-        args += concat((f'-{k}',v) for k,v in kwargs.items() if len(k)==1)
-        args += [f'--{k}={v}' for k,v in kwargs.items() if len(k)>1]
+        args += concat((f'-{k}',v) for k,v in kwargs.items() if len(k)==1 and v is not True)
+        args += [f'-{k}' for k,v in kwargs.items() if len(k)==1 and v is True]
+        args += [f'--{k.replace("_","-")}={v}' for k,v in kwargs.items() if len(k)>1 and v is not True and v is not False]
+        args += [f'--{k.replace("_","-")}' for k,v in kwargs.items() if len(k)>1 and v is True]
         try: return callgit(self.d, cmd, *args, split=split)
-        except CalledProcessError as e: 
+        except CalledProcessError as e:
             if not mute_errors: print(f'ERROR: Git.__call__ caught exception {e} \n with stderr={e.stderr}')
 
     def __getattr__(self, nm):
