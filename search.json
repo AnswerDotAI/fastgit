@@ -1,0 +1,32 @@
+[
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "API",
+    "section": "",
+    "text": "Imports\n\nimport tempfile\nfrom fastcore.test import test_eq\n\n\nsource\n\n\ncallgit\n\ndef callgit(\n    path, args:VAR_POSITIONAL, split:NoneType=None, uname:NoneType=None\n):\n\n\nsource\n\n\nget_top\n\ndef get_top(\n    folder\n):\n\n\nwith tempfile.TemporaryDirectory() as td:\n    test_eq(get_top(td), None)\n    msg = callgit(td, 'init')\n    assert get_top(td) in msg\n\nGit represents a python wrapper for the git command. It will execute every command as if git were being run with the working directory being the directory d passed in at init time.\nAs a result, callers should take care not to checkout a branch which does not have the directory used to initialize Git.\n\nsource\n\n\nGit\n\ndef Git(\n    d\n):\n\nInitialize self. See help(type(self)) for accurate signature.\n\nwith tempfile.TemporaryDirectory() as td:\n    g = Git(td)\n    assert not g.exists\n    msg = g.init()\n    assert g.top() in msg\n\n\nsource\n\n\nGit.last_commit\n\ndef last_commit(\n    \n):",
+    "crumbs": [
+      "API"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "fastgit",
+    "section": "",
+    "text": "Install latest from pypi\n$ pip install fastgit\n\n\n\nIn this example we run git init on a directory, add a .gitignore, and commit it.\n\nimport tempfile\n\n\ndef _git_init(g):\n    if g.exists: return # Return early if git already initialised\n    g.init(b='main')\n    g.config('user.name', 'fastgit')\n    g.config('user.email', 'fastgit@example.com')\n    (g.d/\".gitignore\").mk_write(\"*.bak\")\n    g.add(\".gitignore\")\n    g.commit(m=\"add .gitignore\")\n\n\nwith tempfile.TemporaryDirectory() as td:\n    g = Git(td)\n    _git_init(g)\n    assert 'add .gitignore' in g.last_commit\n    print(g.branch('--show-current'))\n\nmain",
+    "crumbs": [
+      "fastgit"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "fastgit",
+    "section": "",
+    "text": "Install latest from pypi\n$ pip install fastgit\n\n\n\nIn this example we run git init on a directory, add a .gitignore, and commit it.\n\nimport tempfile\n\n\ndef _git_init(g):\n    if g.exists: return # Return early if git already initialised\n    g.init(b='main')\n    g.config('user.name', 'fastgit')\n    g.config('user.email', 'fastgit@example.com')\n    (g.d/\".gitignore\").mk_write(\"*.bak\")\n    g.add(\".gitignore\")\n    g.commit(m=\"add .gitignore\")\n\n\nwith tempfile.TemporaryDirectory() as td:\n    g = Git(td)\n    _git_init(g)\n    assert 'add .gitignore' in g.last_commit\n    print(g.branch('--show-current'))\n\nmain",
+    "crumbs": [
+      "fastgit"
+    ]
+  }
+]
