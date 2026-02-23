@@ -30,7 +30,7 @@ class Git:
     def __init__(self, d): self.d = Path(d)
 
     def __call__(self, cmd, *args, split=None, mute_errors=False, **kwargs):
-        paths = listify(kwargs.pop('__', []))
+        paths = [str(p) for p in listify(kwargs.pop('__', None) or [])]
         args = listify(args)
         args += concat((f'-{k}',v) for k,v in kwargs.items() if len(k)==1 and v is not True)
         args += [f'-{k}' for k,v in kwargs.items() if len(k)==1 and v is True]
