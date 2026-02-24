@@ -19,7 +19,7 @@ In this example we run `git init` on a directory, add a *.gitignore*,
 and commit it.
 
 ``` python
-import tempfile
+import shutil, tempfile
 ```
 
 ``` python
@@ -34,11 +34,23 @@ def _git_init(g):
 ```
 
 ``` python
-with tempfile.TemporaryDirectory() as td:
-    g = Git(td)
-    _git_init(g)
-    assert 'add .gitignore' in g.last_commit
-    print(g.branch('--show-current'))
+td = tempfile.mkdtemp()
+g = Git(td)
+_git_init(g)
+assert 'add .gitignore' in g.last_commit
+print(g.branch('--show-current'))
 ```
 
     main
+
+You can also pass path arguments after `--` using the `__` parameter:
+
+``` python
+g.log('--oneline', __=['.gitignore'])
+```
+
+    '22a9a5d add .gitignore'
+
+``` python
+shutil.rmtree(td)
+```
