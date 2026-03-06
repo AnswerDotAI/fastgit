@@ -13,7 +13,7 @@ import shutil,stat
 
 # %% ../nbs/00_core.ipynb #e4c0a290
 def callgit(path, *args, split=None, uname=None):
-    fp = Path(path).resolve()
+    fp = Path(path).expanduser().resolve()
     args = ['git', '-C', str(fp)] + list(args)
     if uname: args = ['/usr/bin/sudo', '-u', uname] + args
     res = subprocess.run(args, capture_output=True, text=True, check=True).stdout.strip()
@@ -27,7 +27,7 @@ def get_top(folder):
 
 # %% ../nbs/00_core.ipynb #97f78839
 class Git:
-    def __init__(self, d): self.d = Path(d)
+    def __init__(self, d): self.d = Path(d).expanduser()
 
     def __call__(self, cmd, *args, split=None, mute_errors=False, **kwargs):
         paths = [str(p) for p in listify(kwargs.pop('__', None) or [])]
