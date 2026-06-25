@@ -2,7 +2,11 @@
 
 <!-- do not remove -->
 
+## 0.0.5
 
+### New Features
+
+- Add `head_sha` property to Git class ([#5](https://github.com/AnswerDotAI/fastgit/issues/5))
 
 
 ## 0.0.4
