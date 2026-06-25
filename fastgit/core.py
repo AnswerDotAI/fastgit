@@ -51,6 +51,8 @@ class Git:
     
     @property
     def exists(self): return self.top() is not None
+    @property
+    def head_sha(self): return self.rev_parse('HEAD', mute_errors=True)
 
 # %% ../nbs/00_core.ipynb #b688e74b
 @patch(as_prop=True)
