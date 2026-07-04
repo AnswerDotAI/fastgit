@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.6
+
+### New Features
+
+- Add pre param to `call_git` ([#6](https://github.com/AnswerDotAI/fastgit/issues/6))
+
+
 ## 0.0.5
 
 ### New Features
