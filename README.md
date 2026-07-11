@@ -15,8 +15,7 @@ $ pip install fastgit
 
 ### How to use
 
-In this example we run `git init` on a directory, add a *.gitignore*,
-and commit it.
+In this example we run `git init` on a directory, add a *.gitignore*, and commit it.
 
 ``` python
 import shutil, tempfile
