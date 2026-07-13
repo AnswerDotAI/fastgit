@@ -11,20 +11,19 @@ __all__ = ['callgit', 'get_top', 'Git']
 from fastcore.utils import *
 import subprocess
 from subprocess import CalledProcessError
-import shutil,stat
 
 # %% ../nbs/00_core.ipynb #e4c0a290
-def callgit(path, *args, split=None, uname=None, pre=None):
+def callgit(path, *args, uname=None, pre=None):
+    "Run git in `path`, returning stripped stdout+stderr as a single `str`"
     assert not (uname and pre), "Pass `uname` or `pre`, not both"
     if uname:
-        warn("`uname` is deprecated; pass e.g `pre=['/usr/bin/sudo','-u',uname]` instead", DeprecationWarning)
+        warn("`uname` is deprecated; pass e.g `pre=['/usr/bin/sudo','-u',uname]` instead", DeprecationWarning, stacklevel=2)
         pre = ['/usr/bin/sudo', '-u', uname]
     fp = Path(path).expanduser().resolve()
     args = ['git', '-C', str(fp)] + list(args)
     if pre: args = [*pre, *args]
-    res = subprocess.run(args, capture_output=True, text=True, check=True).stdout.strip()
-    if split is None: return res.splitlines() if '\n' in res else res
-    return res.splitlines() if split else res
+    r = subprocess.run(args, capture_output=True, text=True, check=True)
+    return (r.stdout + r.stderr).strip()
 
 # %% ../nbs/00_core.ipynb #4c0df6c6
 def get_top(folder):
@@ -33,30 +32,33 @@ def get_top(folder):
 
 # %% ../nbs/00_core.ipynb #97f78839
 class Git:
-    def __init__(self, d, pre=None): self.d,self.pre = Path(d).expanduser(),pre
+    "Run git commands in dir `d`"
+    def __init__(self, d, pre=None, raise_exc=False): self.d,self.pre,self.raise_exc = Path(d).expanduser(),pre,raise_exc
 
-    def __call__(self, cmd, *args, split=None, mute_errors=False, **kwargs):
+    def __call__(self, cmd, *args, mute_errors=False, raise_exc=None, **kwargs):
         paths = [str(p) for p in listify(kwargs.pop('__', None) or [])]
         args = listify(args)
-        args += concat((f'-{k}',v) for k,v in kwargs.items() if len(k)==1 and v is not True)
+        kwargs = {k:v for k,v in kwargs.items() if v is not False}
+        args += concat((f'-{k}',str(v)) for k,v in kwargs.items() if len(k)==1 and v is not True)
         args += [f'-{k}' for k,v in kwargs.items() if len(k)==1 and v is True]
-        args += [f'--{k.replace("_","-")}={v}' for k,v in kwargs.items() if len(k)>1 and v is not True and v is not False]
+        args += [f'--{k.replace("_","-")}={v}' for k,v in kwargs.items() if len(k)>1 and v is not True]
         args += [f'--{k.replace("_","-")}' for k,v in kwargs.items() if len(k)>1 and v is True]
         if paths: args += ['--'] + paths
-        try: return callgit(self.d, cmd, *args, split=split, pre=self.pre)
+        try: return callgit(self.d, cmd, *args, pre=self.pre)
         except CalledProcessError as e:
+            if ifnone(raise_exc, self.raise_exc): raise
             if not mute_errors: print(f'ERROR: Git.__call__ caught exception {e} \n with stderr={e.stderr}')
 
     def __getattr__(self, nm):
         if nm.startswith('_'): raise AttributeError(nm)
         return partial(self, nm.replace('_','-'))
 
-    def top(self): return self.rev_parse('--show-toplevel', mute_errors=True)
-    
+    def top(self): return self.rev_parse('--show-toplevel', mute_errors=True, raise_exc=False)
+
     @property
     def exists(self): return self.top() is not None
     @property
-    def head_sha(self): return self.rev_parse('HEAD', mute_errors=True)
+    def head_sha(self): return self.rev_parse('HEAD', mute_errors=True, raise_exc=False)
 
 # %% ../nbs/00_core.ipynb #b688e74b
 @patch(as_prop=True)
@@ -64,4 +66,8 @@ def last_commit(self:Git): return self.log('-1', pretty='format:%s')
 
 # %% ../nbs/00_core.ipynb #fdf315b8
 @patch(as_prop=True)
-def commits(self:Git): return self.log('--oneline', split=True)
+def commits(self:Git): return (self.log('--oneline', mute_errors=True, raise_exc=False) or '').splitlines()
+
+# %% ../nbs/00_core.ipynb #712ca55b
+@patch(as_prop=True)
+def current_branch(self:Git): return self.branch('--show-current')
