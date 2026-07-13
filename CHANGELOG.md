@@ -2,6 +2,17 @@
 
 <!-- do not remove -->
 
+## 0.1.0
+
+### Breaking Changes
+
+- `split` param removed; stderr added to output
+
+### New Features
+
+- Refactor callgit to return combined stdout/stderr string; add `raise_exc` option and `current_branch` property ([#7](https://github.com/AnswerDotAI/fastgit/issues/7))
+
+
 ## 0.0.6
 
 ### New Features
