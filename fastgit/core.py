@@ -47,7 +47,7 @@ class Git:
         try: return callgit(self.d, cmd, *args, pre=self.pre)
         except CalledProcessError as e:
             if ifnone(raise_exc, self.raise_exc): raise
-            if not mute_errors: print(f'ERROR: Git.__call__ caught exception {e} \n with stderr={e.stderr}')
+            if not mute_errors: print(f"ERROR: git {' '.join(map(str, [cmd, *args]))}: {e.stderr.strip()}")
 
     def __getattr__(self, nm):
         if nm.startswith('_'): raise AttributeError(nm)
