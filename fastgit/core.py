@@ -14,7 +14,7 @@ from subprocess import CalledProcessError
 
 # %% ../nbs/00_core.ipynb #e4c0a290
 def callgit(path, *args, uname=None, pre=None):
-    "Run git in `path`, returning stripped stdout+stderr as a single `str`"
+    "Run git in `path`, non-interactively (editors suppressed), returning stripped stdout+stderr as a single `str`"
     assert not (uname and pre), "Pass `uname` or `pre`, not both"
     if uname:
         warn("`uname` is deprecated; pass e.g `pre=['/usr/bin/sudo','-u',uname]` instead", DeprecationWarning, stacklevel=2)
@@ -22,7 +22,8 @@ def callgit(path, *args, uname=None, pre=None):
     fp = Path(path).expanduser().resolve()
     args = ['git', '-C', str(fp)] + list(args)
     if pre: args = [*pre, *args]
-    r = subprocess.run(args, capture_output=True, text=True, check=True)
+    r = subprocess.run(args, capture_output=True, text=True, check=True,
+                       env=os.environ|dict(GIT_EDITOR='true', GIT_SEQUENCE_EDITOR='true'))
     return (r.stdout + r.stderr).strip()
 
 # %% ../nbs/00_core.ipynb #4c0df6c6
