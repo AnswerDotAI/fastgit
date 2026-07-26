@@ -21,6 +21,9 @@ Documentation = "https://AnswerDotAI.github.io/fastgit"
 [project.entry-points.nbdev]
 fastgit = "fastgit._modidx:d"
 
+[project.entry-points.pyskills]
+fastgit = "fastgit.skill"
+
 [tool.setuptools.dynamic]
 version = {attr = "fastgit.__version__"}
 
