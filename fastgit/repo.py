@@ -235,13 +235,19 @@ def cat(self:Repo, spec):
     return subprocess.run(args, capture_output=True, text=True, check=True).stdout
 
 # %% ../nbs/01_repo.ipynb #48fa0ed1
+def _lbound(o):
+    "One `-L` range bound: an int line number, a `+N`/`-N` offset str, or a /pattern/"
+    if isinstance(o, int): return str(o)
+    if re.fullmatch(r'[+-]\d+', o): return o
+    return '/'+o.replace('/', r'\/')+'/'
+
 def _lspec(func=None, lines=None, regex=None):
     "A `git -L` range spec from whichever of `func`, `lines`, or `regex` is given"
     if func: return f':{func}'
     if lines: return f'{lines[0]},{lines[1]}'
     if regex:
-        rs = [regex] if isinstance(regex, str) else regex
-        return ','.join('/'+o.replace('/', r'\/')+'/' for o in rs)
+        if isinstance(regex, str): regex = (regex, '+1')  # bare pattern: just the matched line
+        return ','.join(_lbound(o) for o in regex)
 
 def _tz(s): return timezone(timedelta(minutes=(-1 if s[0]=='-' else 1)*(int(s[1:3])*60+int(s[3:5]))))
 

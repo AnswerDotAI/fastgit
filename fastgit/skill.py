@@ -25,7 +25,7 @@ Every result is designed to be displayed bare: reprs mirror the terminal (`--one
     r.blame('core.py', func='load_cfg')  # Blame rows: line -> the last Commit to touch it (via .commit)
     r.trace('core.py', func='load_cfg')  # git log -L: the range's history as Commits, each with .patch
 
-`blame` and `trace` share three range keywords: `func='name'` (git's `:funcname` form; the default funcname pattern only sees column-0 definitions, so indented methods need `*.py diff=python` in the repo's `.gitattributes`), `lines=(start,end)`, and `regex=` (a content pattern, or a `(start, end)` pair; no configuration needed).
+`blame` and `trace` share three range keywords: `func='name'` (git's `:funcname` form; the default funcname pattern only sees column-0 definitions, so indented methods need `*.py diff=python` in the repo's `.gitattributes`), `lines=(start,end)`, and `regex=` (a bare content pattern ranges over just the matched line; a `(start, end)` pair widens it, each element a pattern, an int line number, or a `+N`/`-N` offset str, e.g. `regex=('def f2c', '+3')`). Note that `blame` reports only the last commit to touch each line, so recent reformatting hides a line's true origin; for \"how long has this been so\", use `trace`.
 
 # Status
 
