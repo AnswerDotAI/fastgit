@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.1.1
+
+### New Features
+
+- Make Git error output terse and git-style (single line with command and stderr) ([#8](https://github.com/AnswerDotAI/fastgit/issues/8))
+
+
 ## 0.1.0
 
 ### Breaking Changes
@@ -51,4 +58,3 @@
 ## 0.0.1
 
 - Initial release
-
