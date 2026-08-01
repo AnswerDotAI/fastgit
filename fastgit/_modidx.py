@@ -15,5 +15,7 @@ d = { 'settings': { 'branch': 'main',
                               'fastgit.core.Git.head_sha': ('core.html#git.head_sha', 'fastgit/core.py'),
                               'fastgit.core.Git.last_commit': ('core.html#git.last_commit', 'fastgit/core.py'),
                               'fastgit.core.Git.top': ('core.html#git.top', 'fastgit/core.py'),
+                              'fastgit.core.GitRes': ('core.html#gitres', 'fastgit/core.py'),
+                              'fastgit.core.GitRes.__new__': ('core.html#gitres.__new__', 'fastgit/core.py'),
                               'fastgit.core.callgit': ('core.html#callgit', 'fastgit/core.py'),
                               'fastgit.core.get_top': ('core.html#get_top', 'fastgit/core.py')}}}
