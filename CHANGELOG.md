@@ -2,6 +2,14 @@
 
 <!-- do not remove -->
 
+## 0.1.2
+
+### New Features
+
+- Add async support via sync=False and acallgit; refactor callgit into shared helpers ([#12](https://github.com/AnswerDotAI/fastgit/issues/12))
+- Treat git query commands exit 1 as success, returning output as GitRes with returncode ([#11](https://github.com/AnswerDotAI/fastgit/issues/11))
+
+
 ## 0.1.1
 
 ### New Features
