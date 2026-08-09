@@ -34,3 +34,4 @@ custom_sidebar = false
 
 [tool.chkstyle]
 skip_paths = ["_modidx.py"]
+ignore = ["semicolon"]
