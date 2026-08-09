@@ -67,7 +67,7 @@ r.at('HEAD~1')
 
 ## Diffs
 
-Since a commit is a snapshot, a patch is a comparison between two of them, and `b = a + patch` means the patch is `b - a`. Subtraction returns a [`Diff`](https://AnswerDotAI.github.io/fastgit/repo.html#diff), file rows shown `--stat`-style, with the full text one property away:
+Since a commit is a snapshot, a patch is a comparison between two of them, and `b = a + patch` means the patch is `b - a`. Subtraction returns a [`Diff`](https://AnswerDotAI.github.io/fastgit/repo.html#diff), file rows shown `--stat`-style, with the full text in `.patch`. The diff against a commit’s first parent is the one you want most, so `c.patch` is that patch directly:
 
 ``` python
 c - c.parent
@@ -77,7 +77,7 @@ c - c.parent
     1 files changed, +1 -0
 
 ``` python
-print((c - c.parent).patch)
+print(c.patch)
 ```
 
     diff --git a/shop.txt b/shop.txt

@@ -107,6 +107,11 @@ def tags(self:Repo):
     "Tags as `Refs`"
     return self._refs('refs/tags')
 
+@patch(as_prop=True)
+def branch(self:Repo):
+    "The current branch as a `Ref`, or None if detached (shadows the raw verb: use `r('branch', ...)` for that)"
+    return first(o for o in self.branches if o.cur=='*')
+
 # %% ../nbs/01_repo.ipynb #528e494d
 class DiffFile(GitObj):
     "One changed file; `adds`/`dels` are None for binary files"
@@ -142,6 +147,11 @@ def __sub__(self:Commit, other):
 
 @patch
 def __sub__(self:Ref, other): return self.commit - other
+
+@patch(as_prop=True)
+def patch(self:Commit):
+    "The `git show` patch against the first parent (`trace` commits carry their `-L`-scoped patch instead)"
+    return self.get('patch') or self._g('show', self.sha, format='')
 
 # %% ../nbs/01_repo.ipynb #a2496168
 class StatusEntry(GitObj):

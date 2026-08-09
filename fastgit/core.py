@@ -71,4 +71,4 @@ def commits(self:Git): return (self.log('--oneline', mute_errors=True, raise_exc
 
 # %% ../nbs/00_core.ipynb #712ca55b
 @patch(as_prop=True)
-def current_branch(self:Git): return self.branch('--show-current')
+def current_branch(self:Git): return self('branch', '--show-current')

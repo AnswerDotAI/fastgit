@@ -19,6 +19,7 @@ Every result is designed to be displayed bare: reprs mirror the terminal (`--one
     r.head                     # Commit at HEAD; .sha .msg .author .date .parents
     c.parent                   # first-parent Commit (None for a root commit)
     r.branches, r.tags         # Refs; each has .name .sha .upstream .ahead .behind .commit
+    r.branch                   # the current branch as a Ref (None if detached); r('branch', ...) for the raw verb
     r.remotes                  # Remotes (name and url), like `git remote -v`
     r.stashes                  # Stashes; each is a real Commit addressed stash@{n}
     r.cat('rev:path')          # exact file content at a revision (raw verbs strip trailing whitespace; cat doesn't)
@@ -37,6 +38,7 @@ Since `b = a + patch`, subtraction spells the patch: `b - a` is `git diff a b`. 
 
     r.head - r.at('v0.1')    # what changed since the tag
     print((b - a).patch)     # full patch text
+    print(c.patch)           # a Commit's own patch vs its first parent (git show)
 
 # Write ops: conflict is a status, not an error
 
