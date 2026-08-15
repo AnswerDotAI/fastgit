@@ -24,34 +24,47 @@ class GitRes(str):
         return self
 
 # %% ../nbs/00_core.ipynb #e4c0a290
-def _gitcmd(path, *args, uname=None, pre=None):
-    assert not (uname and pre), "Pass `uname` or `pre`, not both"
-    if uname:
-        warn("`uname` is deprecated; pass e.g `pre=['/usr/bin/sudo','-u',uname]` instead", DeprecationWarning, stacklevel=3)
-        pre = ['/usr/bin/sudo', '-u', uname]
+def _gitcmd(path, *args, pre=None):
     cmd = ['git', '-C', str(Path(path).expanduser().resolve())] + list(args)
     return [*pre, *cmd] if pre else cmd
 
-def _gitres(cmd, args, out, err, returncode, ok_exit):
+def _depr_uname(uname, pre):
+    assert not (uname and pre), "Pass `uname` or `pre`, not both"
+    if not uname: return pre
+    warn("`uname` is deprecated; pass e.g `pre=['/usr/bin/sudo','-u',uname]` instead", DeprecationWarning, stacklevel=4)
+    return ['/usr/bin/sudo', '-u', uname]
+
+def _gitres(args, out, err, returncode, ok_exit):
     if ok_exit is None: ok_exit = 1 if args and args[0] in _ok1 else 0
-    if returncode not in (0, *listify(ok_exit)): raise CalledProcessError(returncode, cmd, out, err)
+    if returncode not in (0, *listify(ok_exit)): raise CalledProcessError(returncode, ['git', *args], out, err)
     return GitRes((out + err).strip(), returncode)
 
-def callgit(path, *args, uname=None, pre=None, ok_exit=None):
-    "Run git in `path`, returning stripped stdout+stderr as a `GitRes`; `ok_exit` adds accepted exit codes (default: 1 for `_ok1` commands)"
-    cmd = _gitcmd(path, *args, uname=uname, pre=pre)
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    return _gitres(cmd, args, r.stdout, r.stderr, r.returncode, ok_exit)
+def _runlocal(path, args, pre=None):
+    "Default runner: compose the local argv and run it in a subprocess"
+    r = subprocess.run(_gitcmd(path, *args, pre=pre), capture_output=True, text=True)
+    return r.stdout, r.stderr, r.returncode
+
+def callgit(
+    path, # Directory to run git in
+    *args, # git subcommand and arguments
+    uname=None, # Deprecated; use `pre`
+    pre=None, # argv prefix, e.g. a sudo wrapper
+    ok_exit=None, # Extra accepted exit codes (default: 1 for `_ok1` commands)
+    runner=None, # Replaces the local subprocess: `(path, args, pre) -> (stdout, stderr, returncode)`
+):
+    "Run git in `path`, returning stripped stdout+stderr as a `GitRes`"
+    out,err,rc = (runner or _runlocal)(path, list(args), pre=_depr_uname(uname, pre))
+    return _gitres(args, out, err, rc, ok_exit)
 
 # %% ../nbs/00_core.ipynb #4c0df6c6
-def get_top(folder):
-    try: return callgit(folder, 'rev-parse', '--show-toplevel')
+def get_top(folder, runner=None):
+    try: return callgit(folder, 'rev-parse', '--show-toplevel', runner=runner)
     except CalledProcessError: return None
 
 # %% ../nbs/00_core.ipynb #97f78839
 class Git:
     "Run git commands in dir `d`; `sync=False` makes every command return an awaitable"
-    def __init__(self, d, pre=None, raise_exc=False, sync=True): self.d,self.pre,self.raise_exc,self._sync = Path(d).expanduser(),pre,raise_exc,sync
+    def __init__(self, d, pre=None, raise_exc=False, sync=True, runner=None): self.d,self.pre,self.raise_exc,self._sync,self.runner = Path(d).expanduser(),pre,raise_exc,sync,runner
 
     def __call__(self, cmd, *args, mute_errors=False, raise_exc=None, ok_exit=None, **kwargs):
         paths = [str(p) for p in listify(kwargs.pop('__', None) or [])]
@@ -66,11 +79,11 @@ class Git:
         return f(cmd, args, mute_errors, ifnone(raise_exc, self.raise_exc), ok_exit)
 
     def _run(self, cmd, args, mute_errors, raise_exc, ok_exit):
-        try: return callgit(self.d, cmd, *args, pre=self.pre, ok_exit=ok_exit)
+        try: return callgit(self.d, cmd, *args, pre=self.pre, ok_exit=ok_exit, runner=self.runner)
         except CalledProcessError as e: self._err(e, cmd, args, mute_errors, raise_exc)
 
     async def _arun(self, cmd, args, mute_errors, raise_exc, ok_exit):
-        try: return await acallgit(self.d, cmd, *args, pre=self.pre, ok_exit=ok_exit)
+        try: return await acallgit(self.d, cmd, *args, pre=self.pre, ok_exit=ok_exit, runner=self.runner)
         except CalledProcessError as e: self._err(e, cmd, args, mute_errors, raise_exc)
 
     def _err(self, e, cmd, args, mute_errors, raise_exc):
@@ -101,9 +114,21 @@ def commits(self:Git): return then(self.log('--oneline', mute_errors=True, raise
 def current_branch(self:Git): return self.branch('--show-current')
 
 # %% ../nbs/00_core.ipynb #b69ecf1c
-async def acallgit(path, *args, uname=None, pre=None, ok_exit=None):
-    "Async `callgit`: identical contract, run in an `asyncio` subprocess"
-    cmd = _gitcmd(path, *args, uname=uname, pre=pre)
+async def _arunlocal(path, args, pre=None):
+    "Async `_runlocal`"
+    cmd = _gitcmd(path, *args, pre=pre)
     p = await asyncio.create_subprocess_exec(*cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out,err = await p.communicate()
-    return _gitres(cmd, args, out.decode(), err.decode(), p.returncode, ok_exit)
+    return out.decode(), err.decode(), p.returncode
+
+async def acallgit(
+    path, # Directory to run git in
+    *args, # git subcommand and arguments
+    uname=None, # Deprecated; use `pre`
+    pre=None, # argv prefix, e.g. a sudo wrapper
+    ok_exit=None, # Extra accepted exit codes (default: 1 for `_ok1` commands)
+    runner=None, # Async runner replacing the local subprocess: `async (path, args, pre) -> (stdout, stderr, returncode)`
+):
+    "Async `callgit`: identical contract, run in an `asyncio` subprocess"
+    out,err,rc = await (runner or _arunlocal)(path, list(args), pre=_depr_uname(uname, pre))
+    return _gitres(args, out, err, rc, ok_exit)
