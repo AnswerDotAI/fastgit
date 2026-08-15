@@ -1,0 +1,42 @@
+[
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "API",
+    "section": "",
+    "text": "import io, tempfile\nfrom contextlib import redirect_stdout\nfrom fastcore.test import test_eq,expect_fail\n\n\nsource",
+    "crumbs": [
+      "API"
+    ]
+  },
+  {
+    "objectID": "core.html#async",
+    "href": "core.html#async",
+    "title": "API",
+    "section": "Async",
+    "text": "Async\nPass sync=False for an async client: every command returns an awaitable, and git runs in an asyncio subprocess, so an event loop (e.g. a web server) is never blocked while git works. The command surface, option mapping, and error behavior are all identical, and properties follow the client’s mode too, so on an async client they are awaited like everything else (await g.commits). acallgit is the async twin of callgit, with the same contract:\n\nsource\n\nacallgit\nasync def acallgit(\n    path, # Directory to run git in\n    *args, # git subcommand and arguments\n    uname:NoneType=None, # Deprecated; use `pre`\n    pre:NoneType=None, # argv prefix, e.g. a sudo wrapper\n    ok_exit:NoneType=None, # Extra accepted exit codes (default: 1 for `_ok1` commands)\n    runner:NoneType=None, # Async runner replacing the local subprocess: `async (path, args, pre) -&gt; (stdout, stderr, returncode)`\n):\nAsync callgit: identical contract, run in an asyncio subprocess\n\nwith tempfile.TemporaryDirectory() as td:\n    g = Git(td, sync=False)\n    await g.init(b='main')\n    (g.d/'a.txt').write_text('a')\n    await g.add('a.txt'); await g.commit(m='first')\n    test_eq(await g.log(n=1, format='%s'), 'first')\n    test_eq(len(await g.commits), 1)\n    test_eq(await g.current_branch, 'main')\n    assert await g.exists\n    test_eq((await g.grep('nope')).returncode, 1)\n    test_eq(await g.log('--bad-flag', mute_errors=True), None)\n    with expect_fail(CalledProcessError): await g.rev_parse('nope', raise_exc=True)",
+    "crumbs": [
+      "API"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "fastgit",
+    "section": "",
+    "text": "fastgit is a thin Python wrapper for the git CLI: one Git object whose attribute calls run git commands, so if you know git, you already know fastgit. There is no reimplementation of git internals and no object model to learn – commands return git’s own output as (subclassed) strs.\nIt is designed for interactive use and automation alike: errors print tersely by default (like git itself) or raise on request, exit codes that mean “no” rather than “failed” are returned normally, and passing sync=False gives an async client for servers and concurrent code.",
+    "crumbs": [
+      "fastgit"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "fastgit",
+    "section": "Usage",
+    "text": "Usage\n\nInstallation\nInstall latest from pypi\n$ pip install fastgit\n\n\nHow to use\nCreate a Git for any directory; every command runs with that directory as its working tree. Method names map to git subcommands, and results come back as stripped strings:\n\nimport shutil, tempfile\n\n\ntd = tempfile.mkdtemp()\ng = Git(td)\ng.init(b='main')\n\n'Initialized empty Git repository in /private/var/folders/51/b2_szf2945n072c0vj2cyty40000gn/T/tmp8zyj76q7/.git/'\n\n\n\n(g.d/'.gitignore').mk_write('*.bak')\ng.add('.gitignore')\ng.commit(m='add .gitignore')\n\n'[main (root-commit) 5113ce1] add .gitignore\\n 1 file changed, 1 insertion(+)\\n create mode 100644 .gitignore'\n\n\nKeyword arguments become options: single-letter names are short options (n=1 → -n 1), longer names long options with underscores turned into dashes, and True passes the bare flag:\n\ng.log(n=1, oneline=True)\n\n'5113ce1 add .gitignore'\n\n\nYou can also pass path arguments after -- using the __ parameter:\n\ng.log('--oneline', __=['.gitignore'])\n\n'5113ce1 add .gitignore'\n\n\nFrequent queries are properties:\n\ng.current_branch, g.commits\n\n('main', ['5113ce1 add .gitignore'])\n\n\nA failed command prints git’s message and returns None; pass raise_exc=True (per call or at init) to raise instead. Where git uses exit 1 to mean “no” rather than “error” – like grep finding nothing – the output is returned as usual, with the code on .returncode:\n\nres = g.grep('missing')\nres.returncode\n\n1\n\n\nPass sync=False for an async client: the same commands and properties, each returning an awaitable, so a server never blocks its event loop on git:\n\nag = Git(td, sync=False)\nawait ag.last_commit\n\n'add .gitignore'",
+    "crumbs": [
+      "fastgit"
+    ]
+  }
+]
