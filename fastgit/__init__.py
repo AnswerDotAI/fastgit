@@ -4,6 +4,6 @@
 
 It is designed for interactive use and automation alike: errors print tersely by default (like git itself) or raise on request, exit codes that mean "no" rather than "failed" are returned normally, and passing `sync=False` gives an async client for servers and concurrent code."""
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 from .core import *
