@@ -4,6 +4,14 @@
 
 ## 0.1.3
 
+### New Features
+
+- Add pluggable runner param to callgit/acallgit/Git/get_top so command execution can be replaced ([#13](https://github.com/AnswerDotAI/fastgit/issues/13))
+
+### Bugs Squashed
+
+- Render 2-3 letter kwargs as short-flag clusters ([#14](https://github.com/AnswerDotAI/fastgit/pull/14)), thanks to [@jph00](https://github.com/jph00)
+
 
 ## 0.1.2
 
