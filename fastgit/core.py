@@ -12,6 +12,7 @@ from fastcore.utils import *
 from fastcore.aio import then
 import subprocess,asyncio
 from subprocess import CalledProcessError
+from functools import cache
 
 # %% ../nbs/00_core.ipynb #880c6a46
 _ok1 = {'merge-tree','merge-base','grep','check-ignore','diff','diff-index','diff-files','diff-tree','show-ref','config','rev-parse'}
@@ -61,6 +62,14 @@ def get_top(folder, runner=None):
     try: return callgit(folder, 'rev-parse', '--show-toplevel', runner=runner)
     except CalledProcessError: return None
 
+# %% ../nbs/00_core.ipynb #2c57b813
+@cache
+def _longopts(cmd):
+    "Long options `git <cmd>` lists for completion; empty if unavailable"
+    try: r = subprocess.run(['git', cmd, '--git-completion-helper'], capture_output=True, text=True)
+    except OSError: return set()
+    return {o.rstrip('=') for o in r.stdout.split()} if r.returncode==0 else set()
+
 # %% ../nbs/00_core.ipynb #97f78839
 class Git:
     "Run git commands in dir `d`; `sync=False` makes every command return an awaitable"
@@ -70,10 +79,11 @@ class Git:
         paths = [str(p) for p in listify(kwargs.pop('__', None) or [])]
         args = listify(args)
         kwargs = {k:v for k,v in kwargs.items() if v is not False}
-        args += concat((f'-{k}',str(v)) for k,v in kwargs.items() if len(k)==1 and v is not True)
-        args += [f'-{k}' for k,v in kwargs.items() if len(k)==1 and v is True]
-        args += [f'--{k.replace("_","-")}={v}' for k,v in kwargs.items() if len(k)>1 and v is not True]
-        args += [f'--{k.replace("_","-")}' for k,v in kwargs.items() if len(k)>1 and v is True]
+        def _short(k): return len(k)==1 or (len(k)<=3 and k.isalnum() and (o:=_longopts(cmd)) and f'--{k}' not in o)
+        args += concat((f'-{k}',str(v)) for k,v in kwargs.items() if _short(k) and v is not True)
+        args += [f'-{k}' for k,v in kwargs.items() if _short(k) and v is True]
+        args += [f'--{k.replace("_","-")}={v}' for k,v in kwargs.items() if not _short(k) and v is not True]
+        args += [f'--{k.replace("_","-")}' for k,v in kwargs.items() if not _short(k) and v is True]
         if paths: args += ['--'] + paths
         f = self._run if self._sync else self._arun
         return f(cmd, args, mute_errors, ifnone(raise_exc, self.raise_exc), ok_exit)
