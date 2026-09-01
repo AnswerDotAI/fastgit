@@ -75,7 +75,15 @@ class Git:
     "Run git commands in dir `d`; `sync=False` makes every command return an awaitable"
     def __init__(self, d, pre=None, raise_exc=False, sync=True, runner=None): self.d,self.pre,self.raise_exc,self._sync,self.runner = Path(d).expanduser(),pre,raise_exc,sync,runner
 
-    def __call__(self, cmd, *args, mute_errors=False, raise_exc=None, ok_exit=None, **kwargs):
+    def __call__(self,
+        cmd, # git subcommand to run
+        *args, # Positional arguments for the subcommand
+        mute_errors=False, # Suppress the printed ERROR line on failure?
+        raise_exc=None, # Raise `CalledProcessError` on failure? (default: `self.raise_exc`)
+        ok_exit=None, # Extra accepted exit codes (default: 1 for commands like `diff` where it isn't an error)
+        **kwargs # Become flags: short keys as `-k v`, long as `--key=v` (`_` to `-`; `True` bare, `False` dropped); `__` passes paths after `--`
+    ):
+        "Run `git cmd` in `self.d`, returning a `GitRes` (or an awaitable of one when `sync=False`)"
         paths = [str(p) for p in listify(kwargs.pop('__', None) or [])]
         args = listify(args)
         kwargs = {k:v for k,v in kwargs.items() if v is not False}
