@@ -1,8 +1,8 @@
 """Use git from python, fast
 
-`fastgit` is a thin Python wrapper for the `git` CLI: one `Git` object whose attribute calls run git commands, so if you know git, you already know fastgit. There is no reimplementation of git internals and no object model to learn -- commands return git's own output as (subclassed) `str`s.
+`fastgit` is a Python wrapper for the `git` command line, for use in scripts and interactive sessions. You call git subcommands as Python methods and pass options as keyword arguments.
 
-It is designed for interactive use and automation alike: errors print tersely by default (like git itself) or raise on request, exit codes that mean "no" rather than "failed" are returned normally, and passing `sync=False` gives an async client for servers and concurrent code."""
+Commands run through the installed `git` executable and return its text output. There is no separate object model for repositories and commits. Both synchronous and asynchronous clients are available."""
 
 __version__ = "0.1.4"
 
