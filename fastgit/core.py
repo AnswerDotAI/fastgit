@@ -73,7 +73,7 @@ def _longopts(cmd):
 # %% ../nbs/00_core.ipynb #97f78839
 class Git:
     "Run git commands in dir `d`; `sync=False` makes every command return an awaitable"
-    def __init__(self, d, pre=None, raise_exc=False, sync=True, runner=None): self.d,self.pre,self.raise_exc,self._sync,self.runner = Path(d).expanduser(),pre,raise_exc,sync,runner
+    def __init__(self, d, pre=None, raise_exc=False, sync=True, runner=None): self.d,self.pre,self.raise_exc,self._sync,self.runner = Path(d),pre,raise_exc,sync,runner
 
     def __call__(self,
         cmd, # git subcommand to run

@@ -19,7 +19,7 @@ $ pip install fastgit
 
 ### How to use
 
-Create a [`Git`](https://AnswerDotAI.github.io/fastgit/core.html#git) object for the directory you want to work in. Every command runs in that directory. Results have leading and trailing whitespace stripped:
+Create a [`Git`](https://AnswerDotAI.github.io/fastgit/core.html#git) object for the directory you want to work in. Every command runs in that directory. The default local runner expands `~` and resolves relative paths. A custom `runner` receives the supplied directory unchanged. Results have leading and trailing whitespace stripped:
 
 ``` python
 import shutil, tempfile
