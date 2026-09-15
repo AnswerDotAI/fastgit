@@ -4,6 +4,6 @@
 
 Commands run through the installed `git` executable and return its text output. There is no separate object model for repositories and commits. Both synchronous and asynchronous clients are available."""
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 from .core import *
