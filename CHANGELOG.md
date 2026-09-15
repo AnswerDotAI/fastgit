@@ -2,11 +2,18 @@
 
 <!-- do not remove -->
 
+## 0.1.4
+
+### New Features
+
+- Move path expansion into the default local runner so custom runners receive the supplied directory unchanged ([#15](https://github.com/AnswerDotAI/fastgit/issues/15))
+
+
 ## 0.1.3
 
 ### New Features
 
-- Add pluggable runner param to callgit/acallgit/Git/get_top so command execution can be replaced ([#13](https://github.com/AnswerDotAI/fastgit/issues/13))
+- Add pluggable runner param to callgit/acallgit/Git/`get_top` so command execution can be replaced ([#13](https://github.com/AnswerDotAI/fastgit/issues/13))
 
 ### Bugs Squashed
 
