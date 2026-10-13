@@ -24,6 +24,8 @@ class GitRes(str):
         self.returncode = returncode
         return self
 
+    def __repr__(self): return str(self)
+
 # %% ../nbs/00_core.ipynb #e4c0a290
 def _gitcmd(path, *args, pre=None):
     cmd = ['git', '-C', str(Path(path).expanduser().resolve())] + list(args)
