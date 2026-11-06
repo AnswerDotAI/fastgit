@@ -2,6 +2,14 @@
 
 <!-- do not remove -->
 
+## 0.1.5
+
+### New Features
+
+- GitRes keeps raw stdout and stderr separately so patches keep their exact whitespace, while its string display stays stripped combined output ([#17](https://github.com/AnswerDotAI/fastgit/issues/17))
+- Add GitRes.`__repr__` that returns the plain string ([#16](https://github.com/AnswerDotAI/fastgit/issues/16))
+
+
 ## 0.1.4
 
 ### New Features
