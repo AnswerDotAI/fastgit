@@ -18,10 +18,10 @@ from functools import cache
 _ok1 = {'merge-tree','merge-base','grep','check-ignore','diff','diff-index','diff-files','diff-tree','show-ref','config','rev-parse'}
 
 class GitRes(str):
-    "Git output `str`, carrying the command's `returncode`"
-    def __new__(cls, s, returncode=0):
-        self = super().__new__(cls, s)
-        self.returncode = returncode
+    "Git output text for display, with raw `stdout`, `stderr` and `returncode`"
+    def __new__(cls, stdout, stderr, returncode=0):
+        self = super().__new__(cls, (stdout + stderr).strip())
+        self.stdout,self.stderr,self.returncode = stdout,stderr,returncode
         return self
 
     def __repr__(self): return str(self)
@@ -40,7 +40,7 @@ def _depr_uname(uname, pre):
 def _gitres(args, out, err, returncode, ok_exit):
     if ok_exit is None: ok_exit = 1 if args and args[0] in _ok1 else 0
     if returncode not in (0, *listify(ok_exit)): raise CalledProcessError(returncode, ['git', *args], out, err)
-    return GitRes((out + err).strip(), returncode)
+    return GitRes(out, err, returncode)
 
 def _runlocal(path, args, pre=None):
     "Default runner: compose the local argv and run it in a subprocess"
@@ -55,7 +55,7 @@ def callgit(
     ok_exit=None, # Extra accepted exit codes (default: 1 for `_ok1` commands)
     runner=None, # Replaces the local subprocess: `(path, args, pre) -> (stdout, stderr, returncode)`
 ):
-    "Run git in `path`, returning stripped stdout+stderr as a `GitRes`"
+    "Run git in `path`; its `GitRes` displays stripped output and retains raw stdout/stderr"
     out,err,rc = (runner or _runlocal)(path, list(args), pre=_depr_uname(uname, pre))
     return _gitres(args, out, err, rc, ok_exit)
 
