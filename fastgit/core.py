@@ -85,7 +85,7 @@ class Git:
         ok_exit=None, # Extra accepted exit codes (default: 1 for commands like `diff` where it isn't an error)
         **kwargs # Become flags: short keys as `-k v`, long as `--key=v` (`_` to `-`; `True` bare, `False` dropped); `__` passes paths after `--`
     ):
-        "Run `git cmd` in `self.d`, returning a `GitRes` (or an awaitable of one when `sync=False`)"
+        "Run `git cmd` in `self.d`, returning a `GitRes`, or `None` if it fails without `raise_exc` (an awaitable of either when `sync=False`)"
         paths = [str(p) for p in listify(kwargs.pop('__', None) or [])]
         args = listify(args)
         kwargs = {k:v for k,v in kwargs.items() if v is not False}
